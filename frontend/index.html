@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HelpDesk - Sistema de Chamados</title>
+
+    <!-- Link para o Google Fonts: Fonte 'Inter' -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- FontAwesome para os ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+        integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <!-- Nosso arquivo de estilos CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="layout">
+
+        <!-- Barra lateral -->
+        <aside class="sidebar">
+            <div class="sidebar-top">
+                <div class="brand">
+                    <i class="fa-solid fa-headset"></i>
+                    <div>
+                        <h1>HelpDesk</h1>
+                        <p>Central de suporte</p>
+                    </div>
+                </div>
+
+                <nav class="menu">
+                    <button class="menu-btn active" id="menu-chamados">
+                        <i class="fa-solid fa-ticket"></i> Chamados
+                    </button>
+                </nav>
+            </div>
+
+            <div class="sidebar-bottom">
+                <p>Sistema de Chamados <span>v1.0</span></p>
+                <p>Giovany Wittlich © 2026</p>
+            </div>
+        </aside>
+
+        <main class="content">
+
+            <!-- Resumo dos chamados (dashboard) -->
+            <section id="view-dashboard">
+                <h2 class="page-title">Dashboard</h2>
+                <div class="cards">
+                    <div class="card card-total">
+                        <span>Total</span>
+                        <strong id="count-total">0</strong>
+                    </div>
+                    <div class="card card-abertos">
+                        <span>Abertos</span>
+                        <strong id="count-abertos">0</strong>
+                    </div>
+                    <div class="card card-atendimento">
+                        <span>Em atendimento</span>
+                        <strong id="count-atendimento">0</strong>
+                    </div>
+                    <div class="card card-resolvidos">
+                        <span>Resolvidos</span>
+                        <strong id="count-resolvidos">0</strong>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Lista de chamados (mesma tela do dashboard) -->
+            <section id="view-chamados">
+                <div class="page-header">
+                    <h2 class="page-title">Chamados</h2>
+                    <button class="btn-primary" id="btn-novo" onclick="openNewModal()">+ Novo chamado</button>
+                </div>
+
+                <!-- Pesquisa e filtros -->
+                <div class="filters">
+                    <input type="text" id="search-input" placeholder="🔍 Pesquisar chamado...">
+
+                    <select id="filter-setor">
+                        <option value="">Setor: Todos</option>
+                        <option>TI</option>
+                        <option>Financeiro</option>
+                        <option>RH</option>
+                        <option>Administrativo</option>
+                        <option>Comercial</option>
+                        <option>Produção</option>
+                    </select>
+
+                    <select id="filter-prioridade">
+                        <option value="">Prioridade: Todas</option>
+                        <option>Alta</option>
+                        <option>Média</option>
+                        <option>Baixa</option>
+                    </select>
+
+                    <select id="filter-status">
+                        <option value="">Status: Todos</option>
+                        <option>Aberto</option>
+                        <option>Em atendimento</option>
+                        <option>Resolvido</option>
+                        <option>Cancelado</option>
+                    </select>
+                </div>
+
+                <!-- Lista de chamados: será preenchida pelo Javascript -->
+                <ul class="chamado-list" id="chamado-list"></ul>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Modal: cadastrar / editar chamado -->
+    <div class="modal-overlay hidden" id="modal-form">
+        <div class="modal">
+            <h3 id="modal-form-title">Novo chamado</h3>
+            <form id="chamado-form">
+                <label for="titulo-input">Título</label>
+                <input type="text" id="titulo-input" placeholder="Digite o título do chamado..." required>
+
+                <label for="setor-input">Setor</label>
+                <select id="setor-input" required>
+                    <option value="">Selecione...</option>
+                    <option>TI</option>
+                    <option>Financeiro</option>
+                    <option>RH</option>
+                    <option>Administrativo</option>
+                    <option>Comercial</option>
+                    <option>Produção</option>
+                </select>
+
+                <label for="prioridade-input">Prioridade</label>
+                <select id="prioridade-input" required>
+                    <option value="">Selecione...</option>
+                    <option>Alta</option>
+                    <option>Média</option>
+                    <option>Baixa</option>
+                </select>
+
+                <!-- O status só aparece na edição (novo chamado sempre começa como Aberto) -->
+                <div id="status-group" class="hidden">
+                    <label for="status-input">Status</label>
+                    <select id="status-input">
+                        <option>Aberto</option>
+                        <option>Em atendimento</option>
+                        <option>Resolvido</option>
+                        <option>Cancelado</option>
+                    </select>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" onclick="closeModals()">Cancelar</button>
+                    <button type="submit" class="btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: visualizar chamado -->
+    <div class="modal-overlay hidden" id="modal-view">
+        <div class="modal">
+            <h3 id="view-numero">Chamado #</h3>
+            <p class="view-titulo" id="view-titulo"></p>
+
+            <div class="view-item"><span>Setor:</span><strong id="view-setor"></strong></div>
+            <div class="view-item"><span>Prioridade:</span><strong id="view-prioridade"></strong></div>
+            <div class="view-item"><span>Status:</span><strong id="view-status"></strong></div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn-secondary" onclick="closeModals()">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: confirmar exclusão -->
+    <div class="modal-overlay hidden" id="modal-delete">
+        <div class="modal">
+            <h3>Excluir chamado</h3>
+            <p>Tem certeza que deseja excluir este chamado?</p>
+            <div class="modal-actions">
+                <button type="button" class="btn-secondary" onclick="closeModals()">Cancelar</button>
+                <button type="button" class="btn-danger" onclick="confirmDelete()">Excluir</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios@1.20.0/dist/axios.min.js"></script>
+    <script src="script.js"></script>
+
+</body>
+
+</html>
